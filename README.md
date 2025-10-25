@@ -2,6 +2,7 @@
 This repository contains a canonical, single-file reference that documents the common error arised when NativeWind v4 used with a React Native CLI project . It collects research, exact configs, reproducible examples, common errors, and nativewind v2 & nativewind v4 migration checklist.
 
 ## Common errors and diagnostic steps
+
  ### 1) .plugins is not a valid Plugin property
  
 In NativeWind v4, the Babel plugin is configured as a preset, not as a plugin. The official installation guide explicitly shows adding "nativewind/babel" inside the presets array of babel.config.js
@@ -18,3 +19,5 @@ If you instead put it under plugins, Babel will complain (for example, users rep
 <img width="1483" height="128" alt="Screenshot 2025-10-22 212917" src="https://github.com/user-attachments/assets/dfb4783c-3316-40c4-9fb8-9f2579d5043e" />
 
 This difference arises because NativeWind split its documentation: earlier v2 docs used the plugin approach, whereas v4 docs use a preset.
+
+### 2) Styles not applied in v4
