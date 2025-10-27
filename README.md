@@ -105,3 +105,26 @@ you install as per the latest version published
 Ensure versions of 'react-native-reanimated' and RN are compatible.
 
 ### 5)  Metro works but Android fails (or vice versa)
+
+Cause: Version mismatch between JS-side plugins and native JSI/native bindings. 
+
+Examples:
+
+i) Installing 'react-native-worklets' fixed Metro, but Android lacked compatible native modules.
+
+ii) Removing 'react-native-worklets' allowed Android to build but broke Metro.
+
+Fix: Align versions. Update the whole toolchain to compatible releases:
+
+```
+npm install nativewind@latest react-native-reanimated@latest react-native-safe-area-context@5.4.0
+npm install -D tailwindcss@^3.4.17 prettier-plugin-tailwindcss@^0.5.11
+npm install react-native-worklets@^0.6.1
+```
+Then clean build artifacts and reinstall:
+```
+rm -rf node_modules android/.gradle android/app/build
+npm install
+npx react-native run-android
+npx react-native start --reset-cache
+```
