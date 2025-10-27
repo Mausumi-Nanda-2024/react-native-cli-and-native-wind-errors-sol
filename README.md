@@ -74,4 +74,34 @@ return <YourApp />;
 ```
 Without this import, NativeWind cannot inject Tailwind styles into your React Native app, even if your Babel configuration is correct.
 
+### 3) "Missing semicolon" in node_modules/react-native/index.js
 
+Cause: Babel did not apply the required transforms for React Native source code. This happens when the Babel preset is wrong, missing, or not resolved.
+
+Why changing preset fixed it: Using 'module:@react-native/babel-preset or' '@react-native/babel-preset' supplies necessary transforms. If 'module:metro-react-native-babel-preset' is not installed or mismatched, Babel leaves modern syntax untransformed. Metro then fails parsing with syntax errors.
+
+Fix:
+```
+npm install -D @react-native/babel-preset
+# or
+yarn add -D @react-native/babel-preset
+```
+Use in babel.config.js:
+```
+module.exports = {
+  presets: ['module:@react-native/babel-preset', 'nativewind/babel'],
+}
+```
+Then reset Metro cache:
+``` npx react-native start --reset-cache ```
+
+### 4) Cannot find module 'react-native-worklets/plugin'
+
+Cause: react-native-worklets is a peer dependency. The package referencing it expects you to install it.
+
+Fix:
+you install as per the latest version published
+``` npm install react-native-worklets@^0.6.1 ```
+Ensure versions of 'react-native-reanimated' and RN are compatible.
+
+### 5)  Metro works but Android fails (or vice versa)
