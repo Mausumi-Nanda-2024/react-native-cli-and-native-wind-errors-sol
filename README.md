@@ -20,4 +20,12 @@ If you instead put it under plugins, Babel will complain (for example, users rep
 
 This difference arises because NativeWind split its documentation: earlier v2 docs used the plugin approach, whereas v4 docs use a preset.
 
-### 2) Styles not applied in v4
+### 2) Nativewind styles are not being applied in v4
+
+#### Clearing Common Misconceptions
+
+Before deep diving into the solution it’s important to clear a common misconception among beginners setting up NativeWind with React Native CLI.
+
+When many developers first configure NativeWind, they often skip reading the official documentation thoroughly. As a result, when their NativeWind styles don’t apply correctly, they assume something is wrong with the Babel configuration.
+
+#### What Beginners Commonly Do
