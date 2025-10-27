@@ -29,3 +29,49 @@ Before deep diving into the solution it’s important to clear a common misconce
 When many developers first configure NativeWind, they often skip reading the official documentation thoroughly. As a result, when their NativeWind styles don’t apply correctly, they assume something is wrong with the Babel configuration.
 
 #### What Beginners Commonly Do
+
+In NativeWind v2, the Babel configuration required adding the following inside the plugins array:
+```
+module.exports = {
+presets: ['module:metro-react-native-babel-preset'],
+plugins: ['nativewind/babel'],
+};
+
+```
+ 
+However, in NativeWind v4, the internal architecture has changed. The configuration must now look like this:
+```
+module.exports = {
+presets: ['module:@react-native/babel-preset', 'nativewind/babel'],
+};
+```
+#### The Misconception
+Many beginners including myself when I first started encountered a situation where NativeWind styles weren’t applying. Thinking the issue was with Babel, I moved 'nativewind/babel' from the plugins array to the presets array in v2-style configuration. However, this caused a new error:
+``` Error: .plugin is not a valid Plugin property ```
+This happens because in NativeWind v4, nativewind/babel is designed to function as a preset, not a plugin. Using it as a plugin leads to incorrect parsing by Babel, which expects a preset configuration.
+
+#### The Real Cause of Styles Not Applying
+
+The real reason styles don’t apply in NativeWind v4 is not the Babel configuration, but rather a missing import of the global.css file.
+
+Create a file named global.css in your root project directory containing code like this:
+```
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+```
+Because the new architecture in v4 relies on CSS interop powered by react-native-css-interop, and this requires importing your generated global.css file inside your root file (e.g., App.tsx).
+Example:
+```
+// App.tsx
+import "./global.css";
+
+
+export default function App() {
+return <YourApp />;
+}
+```
+Without this import, NativeWind cannot inject Tailwind styles into your React Native app, even if your Babel configuration is correct.
+
+
