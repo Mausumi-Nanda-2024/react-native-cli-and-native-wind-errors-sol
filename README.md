@@ -245,3 +245,12 @@ export default {
   presets: [nativewind],
 }
 ```
+
+
+## 🧩 Credits
+
+This research and documentation are based on official references from:  
+- [NativeWind Documentation](https://www.nativewind.dev/)  
+- [React Native Documentation](https://reactnative.dev/)
+
+Thanks to the NativeWind maintainers for their detailed migration guide and continuous support for React Native developers.
