@@ -5,7 +5,7 @@ This repository contains a canonical, single-file reference that documents the c
 
  ### 1) .plugins is not a valid Plugin property
  
-In NativeWind v4, the Babel plugin is configured as a preset, not as a plugin. The official installation guide explicitly shows adding "nativewind/babel" inside the presets array of babel.config.js
+In NativeWind v4, the Babel plugin is configured as a preset, not as a plugin. The official installation guide explicitly shows adding ```nativewind/babel``` inside the presets array of ```babel.config.js```
 
 #### Correct format 
 <img width="995" height="321" alt="Screenshot 2025-10-22 213547" src="https://github.com/user-attachments/assets/172d8f15-a770-4f77-a3ad-6204ebd461eb" />
@@ -14,7 +14,7 @@ In NativeWind v4, the Babel plugin is configured as a preset, not as a plugin. T
 <img width="748" height="371" alt="Screenshot 2025-10-25 221631" src="https://github.com/user-attachments/assets/df2191e4-0866-4c76-b7e6-d891f57fc511" />
 
 
-If you instead put it under plugins, Babel will complain (for example, users report the error “.plugins is not a valid Plugin property”
+If you instead put it under plugins, Babel will complain (for example, users report the error ```.plugins is not a valid Plugin property```
 
 <img width="1483" height="128" alt="Screenshot 2025-10-22 212917" src="https://github.com/user-attachments/assets/dfb4783c-3316-40c4-9fb8-9f2579d5043e" />
 
@@ -46,7 +46,7 @@ presets: ['module:@react-native/babel-preset', 'nativewind/babel'],
 };
 ```
 #### The Misconception
-Many beginners including myself when I first started encountered a situation where NativeWind styles weren’t applying. Thinking the issue was with Babel, I moved 'nativewind/babel' from the plugins array to the presets array in v2-style configuration. However, this caused a new error:
+Many beginners including myself when I first started encountered a situation where NativeWind styles weren’t applying. Thinking the issue was with Babel, I moved ```nativewind/babel``` from the plugins array to the presets array in v2-style configuration. However, this caused a new error:
 ``` Error: .plugin is not a valid Plugin property ```
 This happens because in NativeWind v4, nativewind/babel is designed to function as a preset, not a plugin. Using it as a plugin leads to incorrect parsing by Babel, which expects a preset configuration.
 
@@ -78,7 +78,7 @@ Without this import, NativeWind cannot inject Tailwind styles into your React Na
 
 Cause: Babel did not apply the required transforms for React Native source code. This happens when the Babel preset is wrong, missing, or not resolved.
 
-Why changing preset fixed it: Using 'module:@react-native/babel-preset or' '@react-native/babel-preset' supplies necessary transforms. If 'module:metro-react-native-babel-preset' is not installed or mismatched, Babel leaves modern syntax untransformed. Metro then fails parsing with syntax errors.
+Why changing preset fixed it: Using ```module:@react-native/babel-preset``` or ```@react-native/babel-preset``` supplies necessary transforms. If ```module:metro-react-native-babel-preset``` is not installed or mismatched, Babel leaves modern syntax untransformed. Metro then fails parsing with syntax errors.
 
 Fix:
 ```
@@ -110,9 +110,9 @@ Cause: Version mismatch between JS-side plugins and native JSI/native bindings.
 
 Examples:
 
-i) Installing 'react-native-worklets' fixed Metro, but Android lacked compatible native modules.
+i) Installing ```react-native-worklets``` fixed Metro, but Android lacked compatible native modules.
 
-ii) Removing 'react-native-worklets' allowed Android to build but broke Metro.
+ii) Removing ```react-native-worklets``` allowed Android to build but broke Metro.
 
 Fix: Align versions. Update the whole toolchain to compatible releases:
 
@@ -128,3 +128,65 @@ npm install
 npx react-native run-android
 npx react-native start --reset-cache
 ```
+
+## Worklets: what they are and why NativeWind uses them
+
+Worklet:
+
+i) A function compiled to run on the UI thread or alternate JS runtime for low-latency tasks.
+
+ii) Common in ```react-native-reanimated ``` and related animation libs.
+
+iii) Marked by a ``` 'worklet'``` directive or compiled by a Babel plugin.
+
+```react-native-worklets``` plugin:
+
+i) Babel plugin: ```react-native-worklets/plugin``` transforms functions for the worklet runtime.
+
+ii) Native runtime: ships JSI/native bindings that must match React Native and Reanimated versions.
+
+#### Why NativeWind v4 references worklets
+
+i) Internal modules like ```react-native-css-interop``` use worklets to update styles ideally on the UI thread.
+
+iii) The NativeWind toolchain expects ```react-native-worklets``` as a peer dependency. If it is missing, Babel errors arise.
+
+#### Symptoms when missing
+
+i) Metro error: ```Cannot find module 'react-native-worklets/plugin'```
+
+ii) Installing ```react-native-worklets``` fixes the Babel error but may expose native ABI mismatches on Android if Reanimated or RN versions differ.
+
+## High-level difference: v2 vs v4
+
+#### V2
+
+Architecture: Babel plugin driven.
+
+Setup: ```nativewind/babel``` in ```plugins``` and optional ```postcss.config.js``` for web builds.
+
+Behavior: Babel plugin transforms ```className``` strings into RN style objects (or helper calls) during JS transform.
+
+Pros: Works without explicit CSS import in many setups.
+
+Cons: More runtime overhead, less type safety, relies on Babel plugin configuration.
+
+#### V4
+
+Architecture: Compiler + Tailwind extraction pipeline.
+
+Setup: ```nativewind/babel``` is typically used as a ```preset``` and the tool expects a CSS entry point such as ```global.css``` imported in ```App.tsx```.
+
+Behavior: NativeWind compiles Tailwind directives into an RN JS style registry. Importing ```global.css``` triggers the compiler to emit and register styles for runtime lookup.
+
+Pros: Faster startup, smaller bundle, stronger type safety, build-time extraction.
+
+Cons: Must import ```global.css```. Misconfiguring Babel or omitting the CSS import leads to missing styles.
+
+#### In short:
+
+v2: Used ```plugins``` and ```ostcss.config.js```.
+
+v4: Uses ```presets``` and requires ```global.css``` import.
+
+## Some important configuration file detail breakdown ( why this file matters)
