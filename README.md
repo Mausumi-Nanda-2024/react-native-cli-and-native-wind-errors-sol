@@ -185,8 +185,63 @@ Cons: Must import ```global.css```. Misconfiguring Babel or omitting the CSS imp
 
 #### In short:
 
-v2: Used ```plugins``` and ```ostcss.config.js```.
+v2: Used ```plugins``` and ```postcss.config.js```.
 
 v4: Uses ```presets``` and requires ```global.css``` import.
 
-## Some important configuration file detail breakdown ( why this file matters)
+## Some important configuration file detail breakdown ( why this file matters )
+
+```global.css (v4)```:
+```
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+i) Contains Tailwind directives that the NativeWind compiler processes.
+
+ii) Must be imported once in the app entry (e.g. ```App.tsx```). The import triggers Metro to include the generated stylesheet JS module and registers the style registry.
+
+iii) Without this import, ```className``` has no mapped RN style objects.
+
+```postcss.config.js```:
+
+v2: Often required because the project-level PostCSS pipeline runs ```tailwindcss``` and ```autoprefixer```.
+
+v4: Not required for pure React Native CLI mobile apps because the NativeWind compiler includes an internal PostCSS/Tailwind runner. Keep it only if:
+
+  i) You target web (React Native Web, Expo Web) and need real CSS output.
+
+  ii) You need custom PostCSS plugins (e.g., ```postcss-import```, ```cssnano```).
+
+Example (web):
+
+```
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
+
+```babel.config.js```:
+
+v2: ```nativewind/babel``` often lived in ```plugins```.
+
+v4: Official docs show ```nativewind/babel``` in ```presets```. Putting it in ```plugins``` can lead to errors.
+
+```tailwind.config.js```:
+
+Include ```content``` globs for all RN source files so the compiler extracts class names.
+
+Use NativeWind preset when recommended.
+
+Example:
+```
+import { nativewind } from 'nativewind/tailwind'
+
+export default {
+  content: ['./App.{js,ts,tsx,jsx}', './src/**/*.{js,ts,tsx,jsx}'],
+  presets: [nativewind],
+}
+```
